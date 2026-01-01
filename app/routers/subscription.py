@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Optional
 from app.schemas.subscription import SubscriptionResponse, SubscriptionRenew
 from app.services.subscription_service import SubscriptionService
 from app.middleware.auth import get_current_user
@@ -9,15 +10,16 @@ logger = get_logger(__name__)
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
 
 
-@router.get("/me", response_model=SubscriptionResponse)
+@router.get("/me", response_model=Optional[SubscriptionResponse])
 async def get_my_subscription(current_user: dict = Depends(get_current_user)):
-    """Get current user's subscription"""
+    """Get current user's subscription (returns null if no subscription exists)"""
+    logger.info(f"[cyan]📋 Subscription request from user: {current_user['email']} (ID: {current_user['id']})[/cyan]")
     subscription = await SubscriptionService.get_user_subscription(current_user["id"])
     if not subscription:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No subscription found"
-        )
+        # Return null instead of 404 for better frontend handling
+        logger.info(f"[yellow]⚠[/yellow] No subscription found for user: {current_user['email']}")
+        return None
+    logger.info(f"[bold green]✓[/bold green] Subscription found for user: {current_user['email']}")
     return subscription
 
 
