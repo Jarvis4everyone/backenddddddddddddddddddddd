@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     # Application Configuration
     app_name: str = "Jarvis4Everyone Backend"
     debug: bool = False
-    cors_origins: str = "http://localhost:3000,http://localhost:5173"
+    cors_origins: str = "http://localhost:3000,http://localhost:5173,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:5173,http://93.127.195.74:3000"
     
     # Download Configuration
     download_file_path: str = "./.downloads/jarvis4everyone.zip"
@@ -30,16 +30,24 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> List[str]:
         """Get CORS origins list, handling wildcard case"""
         # When using credentials, we can't use wildcard "*"
-        # Convert "*" to common development origins
+        # Convert "*" to common development origins + VPS IP
         if self.cors_origins.strip() == "*":
             return [
                 "http://localhost:3000",
                 "http://localhost:5173", 
                 "http://localhost:8080",
                 "http://127.0.0.1:3000",
-                "http://127.0.0.1:5173"
+                "http://127.0.0.1:5173",
+                "http://93.127.195.74:3000",
+                "http://93.127.195.74:5173",
+                "http://93.127.195.74:8080"
             ]
-        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+        # Parse comma-separated origins and add VPS IP if not present
+        origins = [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+        vps_origin = "http://93.127.195.74:3000"
+        if vps_origin not in origins:
+            origins.append(vps_origin)
+        return origins
 
     class Config:
         env_file = ".env"
