@@ -52,7 +52,19 @@ async def create_indexes():
         # Payment indexes
         await db.database.payments.create_index("user_id")
         await db.database.payments.create_index("razorpay_order_id", unique=True)
-        await db.database.payments.create_index("razorpay_payment_id", unique=True)
+        
+        # Fix razorpay_payment_id index: make it sparse to allow multiple null values
+        # Drop existing index if it exists (to update from non-sparse to sparse)
+        try:
+            await db.database.payments.drop_index("razorpay_payment_id_1")
+            logger.debug("[yellow]⚠[/yellow] Dropped old razorpay_payment_id index")
+        except Exception:
+            # Index doesn't exist or has different name, that's okay
+            pass
+        
+        # Create sparse unique index: only indexes non-null values, allows multiple nulls
+        await db.database.payments.create_index("razorpay_payment_id", unique=True, sparse=True)
+        
         await db.database.payments.create_index("email")
         await db.database.payments.create_index("created_at")
 
