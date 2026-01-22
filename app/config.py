@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     
     # Download Configuration
     download_file_path: str = "./.downloads/jarvis4everyone.zip"
+    
+    # Subscription Configuration
+    subscription_price: float = 299.0  # Default price in INR (₹299)
 
     @property
     def cors_origins_list(self) -> List[str]:

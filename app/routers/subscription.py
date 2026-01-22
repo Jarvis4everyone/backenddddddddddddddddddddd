@@ -2,11 +2,22 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.schemas.subscription import SubscriptionResponse, SubscriptionRenew
 from app.services.subscription_service import SubscriptionService
 from app.middleware.auth import get_current_user
+from app.config import settings
 from app.utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
+
+
+@router.get("/price")
+async def get_subscription_price():
+    """Get subscription price (public endpoint, no auth required)"""
+    return {
+        "price": settings.subscription_price,
+        "currency": "INR",
+        "price_in_paise": int(settings.subscription_price * 100)
+    }
 
 
 @router.get("/me", response_model=SubscriptionResponse)
