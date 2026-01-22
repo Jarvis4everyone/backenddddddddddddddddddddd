@@ -14,9 +14,8 @@ class SubscriptionResponse(BaseModel):
     updated_at: datetime
     cancelled_at: Optional[datetime] = None
 
-    model_config = {
-        "from_attributes": True
-    }
+    class Config:
+        from_attributes = True
 
 
 class SubscriptionCreate(BaseModel):
