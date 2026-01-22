@@ -8,5 +8,21 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.0
       - key: PORT
-        sync: false  # Render will set this automatically
-    healthCheckPath: /health
+        fromService:
+          type: web
+          name: jarvis4everyone-backend
+          property: port
+    # Add your environment variables in Render dashboard:
+    # - MONGODB_URL
+    # - DATABASE_NAME
+    # - JWT_SECRET_KEY
+    # - JWT_ALGORITHM
+    # - ACCESS_TOKEN_EXPIRE_MINUTES
+    # - REFRESH_TOKEN_EXPIRE_DAYS
+    # - RAZORPAY_KEY_ID
+    # - RAZORPAY_KEY_SECRET
+    # - RAZORPAY_WEBHOOK_SECRET
+    # - APP_NAME
+    # - DEBUG
+    # - CORS_ORIGINS
+    # - DOWNLOAD_FILE_PATH
