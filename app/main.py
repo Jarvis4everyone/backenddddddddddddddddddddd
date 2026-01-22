@@ -38,6 +38,7 @@ app = FastAPI(
 # Must explicitly list allowed origins
 cors_origins = settings.cors_origins_list
 logger.info(f"[cyan]🌐 CORS enabled for origins: {cors_origins}[/cyan]")
+logger.info(f"[cyan]📝 CORS_ORIGINS env value: {settings.cors_origins}[/cyan]")
 
 app.add_middleware(
     CORSMiddleware,
@@ -46,6 +47,7 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
     expose_headers=["*"],
+    max_age=3600,  # Cache preflight requests for 1 hour
 )
 
 # Include routers
@@ -73,4 +75,14 @@ async def root():
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy"}
+
+
+@app.get("/cors-info")
+async def cors_info():
+    """Debug endpoint to check CORS configuration"""
+    return {
+        "cors_origins": settings.cors_origins,
+        "cors_origins_list": settings.cors_origins_list,
+        "allowed_origins_count": len(settings.cors_origins_list)
+    }
 

@@ -40,7 +40,22 @@ class Settings(BaseSettings):
                 "http://127.0.0.1:5173",
                 "https://frontend-4tbx.onrender.com"
             ]
-        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+        
+        # Parse comma-separated origins and normalize them
+        origins = []
+        for origin in self.cors_origins.split(","):
+            origin = origin.strip()
+            if origin:
+                # Remove trailing slashes
+                origin = origin.rstrip("/")
+                origins.append(origin)
+        
+        # Always include frontend URL if not already present
+        frontend_url = "https://frontend-4tbx.onrender.com"
+        if frontend_url not in origins:
+            origins.append(frontend_url)
+        
+        return origins
 
     class Config:
         env_file = ".env"
