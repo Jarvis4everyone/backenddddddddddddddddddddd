@@ -1,6 +1,6 @@
 # Complete Frontend Fix Guide - Jarvis4Everyone
 
-This guide will help you fix all frontend issues to work with your deployed backend at `https://backend-gchd.onrender.com`.
+This guide will help you fix all frontend issues to work with your deployed backend at `https://backend-hjyy.onrender.com`.
 
 ## Table of Contents
 1. [Environment Variables Setup](#environment-variables-setup)
@@ -23,7 +23,7 @@ This guide will help you fix all frontend issues to work with your deployed back
 
 **`.env.production`** (for production):
 ```env
-VITE_API_URL=https://backend-gchd.onrender.com
+VITE_API_URL=https://backend-hjyy.onrender.com
 ```
 
 **`.env.local`** or **`.env.development`** (for local development):
@@ -35,7 +35,7 @@ VITE_API_URL=http://localhost:8000
 
 **`.env.production`**:
 ```env
-REACT_APP_API_URL=https://backend-gchd.onrender.com
+REACT_APP_API_URL=https://backend-hjyy.onrender.com
 ```
 
 **`.env.local`**:
@@ -47,7 +47,7 @@ REACT_APP_API_URL=http://localhost:8000
 
 **`.env.production`**:
 ```env
-NEXT_PUBLIC_API_URL=https://backend-gchd.onrender.com
+NEXT_PUBLIC_API_URL=https://backend-hjyy.onrender.com
 ```
 
 **`.env.local`**:
@@ -60,9 +60,9 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 1. Go to your frontend service on Render: `https://frontend-4tbx.onrender.com`
 2. Navigate to **Environment** tab
 3. Add/Update environment variable:
-   - **For Vite**: `VITE_API_URL` = `https://backend-gchd.onrender.com`
-   - **For React**: `REACT_APP_API_URL` = `https://backend-gchd.onrender.com`
-   - **For Next.js**: `NEXT_PUBLIC_API_URL` = `https://backend-gchd.onrender.com`
+   - **For Vite**: `VITE_API_URL` = `https://backend-hjyy.onrender.com`
+   - **For React**: `REACT_APP_API_URL` = `https://backend-hjyy.onrender.com`
+   - **For Next.js**: `NEXT_PUBLIC_API_URL` = `https://backend-hjyy.onrender.com`
 4. **Redeploy** your frontend
 
 ---
@@ -778,12 +778,12 @@ If you're still experiencing issues:
 
 1. Check browser console for specific errors
 2. Check Network tab to see request/response details
-3. Verify backend is running: `https://backend-gchd.onrender.com/health`
-4. Check CORS config: `https://backend-gchd.onrender.com/cors-info`
+3. Verify backend is running: `https://backend-hjyy.onrender.com/health`
+4. Check CORS config: `https://backend-hjyy.onrender.com/cors-info`
 5. Review backend logs in Render dashboard
 
 ---
 
 **Last Updated**: After backend deployment fixes
-**Backend URL**: `https://backend-gchd.onrender.com`
+**Backend URL**: `https://backend-hjyy.onrender.com`
 **Frontend URL**: `https://frontend-4tbx.onrender.com`

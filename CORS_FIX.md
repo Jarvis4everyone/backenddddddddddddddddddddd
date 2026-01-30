@@ -1,10 +1,10 @@
 # CORS Fix Guide
 
 ## Problem
-You're getting CORS errors when trying to make requests from `https://frontend-4tbx.onrender.com` to `https://backend-gchd.onrender.com`:
+You're getting CORS errors when trying to make requests from `https://frontend-4tbx.onrender.com` to `https://backend-hjyy.onrender.com`:
 
 ```
-Access to XMLHttpRequest at 'https://backend-gchd.onrender.com/payments/create-order' 
+Access to XMLHttpRequest at 'https://backend-hjyy.onrender.com/payments/create-order' 
 from origin 'https://frontend-4tbx.onrender.com' has been blocked by CORS policy: 
 No 'Access-Control-Allow-Origin' header is present on the requested resource.
 ```
@@ -13,7 +13,7 @@ No 'Access-Control-Allow-Origin' header is present on the requested resource.
 
 ### Step 1: Verify Environment Variable in Render
 
-1. Go to your **backend** service on Render: `https://backend-gchd.onrender.com`
+1. Go to your **backend** service on Render: `https://backend-hjyy.onrender.com`
 2. Navigate to **Environment** tab
 3. Check if `CORS_ORIGINS` is set correctly:
    - **Key**: `CORS_ORIGINS`
@@ -24,7 +24,7 @@ No 'Access-Control-Allow-Origin' header is present on the requested resource.
 
 After deploying the latest code, check the CORS configuration:
 
-1. Visit: `https://backend-gchd.onrender.com/cors-info`
+1. Visit: `https://backend-hjyy.onrender.com/cors-info`
 2. You should see:
    ```json
    {
@@ -77,7 +77,7 @@ After fixing, test with:
 
 1. **Browser Console Test**:
    ```javascript
-   fetch('https://backend-gchd.onrender.com/health', {
+   fetch('https://backend-hjyy.onrender.com/health', {
      method: 'GET',
      credentials: 'include'
    })
@@ -98,7 +98,7 @@ After fixing, test with:
 Make sure your frontend is using `credentials: 'include'` in all fetch requests:
 
 ```javascript
-fetch('https://backend-gchd.onrender.com/payments/create-order', {
+fetch('https://backend-hjyy.onrender.com/payments/create-order', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -139,6 +139,6 @@ DOWNLOAD_FILE_PATH=app/.downloads/jarvis4everyone.zip
 ## Still Having Issues?
 
 1. Check backend logs in Render dashboard
-2. Visit `https://backend-gchd.onrender.com/cors-info` to verify CORS config
+2. Visit `https://backend-hjyy.onrender.com/cors-info` to verify CORS config
 3. Test with browser console (see Step 5)
 4. Verify frontend is using `credentials: 'include'` in all requests

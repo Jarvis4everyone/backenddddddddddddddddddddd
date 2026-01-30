@@ -1076,7 +1076,7 @@ logger.error(f"Payment verification failed for order {order_id}: {str(e)}")
 #### 1. Create Payment Order
 
 ```bash
-curl -X POST https://backend-gchd.onrender.com/payments/create-order \
+curl -X POST https://backend-hjyy.onrender.com/payments/create-order \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -1088,7 +1088,7 @@ curl -X POST https://backend-gchd.onrender.com/payments/create-order \
 #### 2. Verify Payment
 
 ```bash
-curl -X POST https://backend-gchd.onrender.com/payments/verify \
+curl -X POST https://backend-hjyy.onrender.com/payments/verify \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -1135,7 +1135,7 @@ RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
 
 ### Webhook Configuration
 
-1. **Production URL**: `https://backend-gchd.onrender.com/payments/webhook`
+1. **Production URL**: `https://backend-hjyy.onrender.com/payments/webhook`
 2. **Events**: `payment.captured`
 3. **Secret**: Set in `RAZORPAY_WEBHOOK_SECRET`
 
@@ -1232,5 +1232,5 @@ app/
 ---
 
 **Last Updated**: After payment system implementation
-**Backend URL**: `https://backend-gchd.onrender.com`
+**Backend URL**: `https://backend-hjyy.onrender.com`
 **Razorpay Dashboard**: https://dashboard.razorpay.com

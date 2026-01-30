@@ -306,7 +306,7 @@ No frontend environment variables needed for price - always fetch from backend A
 
 ```javascript
 // Test in browser console
-fetch('https://backend-gchd.onrender.com/subscriptions/price')
+fetch('https://backend-hjyy.onrender.com/subscriptions/price')
   .then(r => r.json())
   .then(console.log)
   .catch(console.error);
@@ -392,7 +392,7 @@ Expected response:
 
 **Example Usage**:
 ```javascript
-const response = await fetch('https://backend-gchd.onrender.com/subscriptions/price');
+const response = await fetch('https://backend-hjyy.onrender.com/subscriptions/price');
 const data = await response.json();
 console.log(`Price: ₹${data.price} (${data.price_in_paise} paise)`);
 ```
@@ -400,5 +400,5 @@ console.log(`Price: ₹${data.price} (${data.price_in_paise} paise)`);
 ---
 
 **Last Updated**: After subscription price configuration
-**Backend URL**: `https://backend-gchd.onrender.com`
+**Backend URL**: `https://backend-hjyy.onrender.com`
 **Default Price**: ₹299.00

@@ -1,7 +1,7 @@
 # Frontend Fix - Update API URL
 
 ## Problem
-Your frontend at `https://frontend-4tbx.onrender.com/` is trying to connect to `localhost:8000` instead of your backend URL `https://backend-gchd.onrender.com/`.
+Your frontend at `https://frontend-4tbx.onrender.com/` is trying to connect to `localhost:8000` instead of your backend URL `https://backend-hjyy.onrender.com/`.
 
 ## Solution
 
@@ -23,7 +23,7 @@ Search for `localhost:8000` in your frontend codebase. Common locations:
 
 Create or update `.env.production`:
 ```env
-VITE_API_URL=https://backend-gchd.onrender.com
+VITE_API_URL=https://backend-hjyy.onrender.com
 ```
 
 Create or update `.env.local` (for local development):
@@ -35,7 +35,7 @@ VITE_API_URL=http://localhost:8000
 
 Create or update `.env.production`:
 ```env
-REACT_APP_API_URL=https://backend-gchd.onrender.com
+REACT_APP_API_URL=https://backend-hjyy.onrender.com
 ```
 
 Create or update `.env.local`:
@@ -47,7 +47,7 @@ REACT_APP_API_URL=http://localhost:8000
 
 Create or update `.env.production`:
 ```env
-NEXT_PUBLIC_API_URL=https://backend-gchd.onrender.com
+NEXT_PUBLIC_API_URL=https://backend-hjyy.onrender.com
 ```
 
 Create or update `.env.local`:
@@ -103,7 +103,7 @@ fetch(`${API_URL}/auth/register`, {
 2. Go to **Environment** tab
 3. Add environment variable:
    - **Key**: `VITE_API_URL` (or `REACT_APP_API_URL` or `NEXT_PUBLIC_API_URL` depending on your framework)
-   - **Value**: `https://backend-gchd.onrender.com`
+   - **Value**: `https://backend-hjyy.onrender.com`
 4. Save and redeploy
 
 ### Step 6: Common Files to Check
@@ -176,7 +176,7 @@ export default new ApiService();
 If you want a quick fix, you can do a find and replace in your frontend codebase:
 
 **Find:** `http://localhost:8000`
-**Replace:** `https://backend-gchd.onrender.com`
+**Replace:** `https://backend-hjyy.onrender.com`
 
 **OR** (better approach):
 **Find:** `http://localhost:8000`
@@ -189,8 +189,8 @@ Then make sure to import/define `API_URL` at the top of files that use it.
 After making changes:
 
 1. **Local Testing**: Set your local env to `http://localhost:8000` and test locally
-2. **Production**: Set Render env var to `https://backend-gchd.onrender.com` and redeploy
-3. **Check Browser Console**: Should see requests going to `https://backend-gchd.onrender.com` not `localhost:8000`
+2. **Production**: Set Render env var to `https://backend-hjyy.onrender.com` and redeploy
+3. **Check Browser Console**: Should see requests going to `https://backend-hjyy.onrender.com` not `localhost:8000`
 
 ## Important Notes
 
