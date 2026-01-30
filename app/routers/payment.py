@@ -18,25 +18,54 @@ async def create_payment_order(
     current_user: dict = Depends(get_current_user)
 ):
     """Create Razorpay order for payment"""
-    # Create Razorpay order
-    order = await PaymentService.create_order(payment_data.amount, payment_data.currency)
-    
-    # Create payment record
-    payment = await PaymentService.create_payment_record(
-        current_user["id"],
-        current_user["email"],
-        payment_data.amount,
-        payment_data.currency,
-        order["id"]
-    )
-    
-    return {
-        "order_id": order["id"],
-        "amount": order["amount"],
-        "currency": order["currency"],
-        "key_id": settings.razorpay_key_id,
-        "payment_id": payment["id"]
-    }
+    try:
+        logger.info(
+            f"[cyan]💳[/cyan] Creating payment order for user: {current_user['email']}, "
+            f"amount: {payment_data.amount} {payment_data.currency}"
+        )
+        
+        # Create Razorpay order with retry logic
+        order = await PaymentService.create_order(payment_data.amount, payment_data.currency)
+        
+        # Create payment record
+        payment = await PaymentService.create_payment_record(
+            current_user["id"],
+            current_user["email"],
+            payment_data.amount,
+            payment_data.currency,
+            order["id"]
+        )
+        
+        logger.info(
+            f"[bold green]✓[/bold green] Payment order created successfully: "
+            f"order_id={order['id']}, payment_id={payment['id']}"
+        )
+        
+        return {
+            "order_id": order["id"],
+            "amount": order["amount"],
+            "currency": order["currency"],
+            "key_id": settings.razorpay_key_id,
+            "payment_id": payment["id"]
+        }
+    except ValueError as e:
+        logger.error(f"[bold red]✗[/bold red] Invalid payment request: [red]{str(e)}[/red]")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except ConnectionError as e:
+        logger.error(f"[bold red]✗[/bold red] Connection error: [red]{str(e)}[/red]")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Payment service temporarily unavailable. Please try again in a moment."
+        )
+    except Exception as e:
+        logger.error(f"[bold red]✗[/bold red] Unexpected error: [red]{str(e)}[/red]")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create payment order. Please try again."
+        )
 
 
 @router.post("/verify", response_model=PaymentResponse)

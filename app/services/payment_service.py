@@ -2,27 +2,95 @@ from typing import Optional, List
 from datetime import datetime
 from bson import ObjectId
 import razorpay
+import asyncio
 from app.database import db
 from app.config import settings
 from app.utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-# Initialize Razorpay client
-razorpay_client = razorpay.Client(auth=(settings.razorpay_key_id, settings.razorpay_key_secret))
+# Initialize Razorpay client with timeout settings
+razorpay_client = razorpay.Client(
+    auth=(settings.razorpay_key_id, settings.razorpay_key_secret)
+)
+# Set timeout for requests (30 seconds)
+razorpay_client.set_app_details({"title": "Jarvis4Everyone", "version": "1.0.0"})
 
 
 class PaymentService:
     @staticmethod
+    def _create_order_sync(order_data: dict) -> dict:
+        """Synchronous Razorpay order creation (called in thread pool)"""
+        return razorpay_client.order.create(data=order_data)
+    
+    @staticmethod
     async def create_order(amount: float, currency: str = "INR") -> dict:
-        """Create Razorpay order"""
+        """Create Razorpay order with retry logic and proper error handling"""
         order_data = {
             "amount": int(amount * 100),  # Convert to paise
             "currency": currency,
             "payment_capture": 1
         }
-        order = razorpay_client.order.create(data=order_data)
-        return order
+        
+        logger.info(f"[cyan]💳[/cyan] Creating Razorpay order: {amount} {currency}")
+        
+        # Retry logic with exponential backoff
+        max_retries = 3
+        delay = 1.0
+        backoff = 2.0
+        last_exception = None
+        
+        for attempt in range(max_retries):
+            try:
+                # Run synchronous Razorpay call in thread pool to avoid blocking
+                loop = asyncio.get_event_loop()
+                order = await loop.run_in_executor(
+                    None, 
+                    PaymentService._create_order_sync, 
+                    order_data
+                )
+                
+                logger.info(f"[bold green]✓[/bold green] Razorpay order created: {order.get('id')}")
+                return order
+                
+            except razorpay.errors.BadRequestError as e:
+                # Don't retry on bad requests (invalid data)
+                logger.error(f"[bold red]✗[/bold red] Razorpay bad request error: [red]{str(e)}[/red]")
+                raise ValueError(f"Invalid payment request: {str(e)}")
+                
+            except (ConnectionError, TimeoutError, 
+                    razorpay.errors.ServerError,
+                    Exception) as e:
+                last_exception = e
+                
+                # Check if it's a retryable error
+                is_retryable = isinstance(e, (ConnectionError, TimeoutError, razorpay.errors.ServerError))
+                
+                if attempt < max_retries - 1 and is_retryable:
+                    logger.warning(
+                        f"[yellow]⚠[/yellow] Attempt {attempt + 1}/{max_retries} failed: "
+                        f"[yellow]{str(e)}[/yellow]. Retrying in {delay:.1f}s..."
+                    )
+                    await asyncio.sleep(delay)
+                    delay *= backoff
+                else:
+                    if isinstance(e, razorpay.errors.ServerError):
+                        logger.error(f"[bold red]✗[/bold red] Razorpay server error: [red]{str(e)}[/red]")
+                        raise ConnectionError(f"Razorpay service unavailable: {str(e)}")
+                    elif isinstance(e, (ConnectionError, TimeoutError)):
+                        logger.error(f"[bold red]✗[/bold red] Connection error: [red]{str(e)}[/red]")
+                        raise ConnectionError(f"Failed to connect to Razorpay: {str(e)}")
+                    else:
+                        logger.error(f"[bold red]✗[/bold red] Unexpected error: [red]{str(e)}[/red]")
+                        raise Exception(f"Failed to create payment order: {str(e)}")
+        
+        # If we exhausted all retries
+        if last_exception:
+            logger.error(
+                f"[bold red]✗[/bold red] All {max_retries} attempts failed: "
+                f"[red]{str(last_exception)}[/red]"
+            )
+            raise ConnectionError(f"Failed to create payment order after {max_retries} attempts: {str(last_exception)}")
 
     @staticmethod
     async def create_payment_record(user_id: str, email: str, amount: float, currency: str, razorpay_order_id: str) -> dict:
