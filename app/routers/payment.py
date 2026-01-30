@@ -17,12 +17,31 @@ async def create_payment_order(
     payment_data: PaymentCreate,
     current_user: dict = Depends(get_current_user)
 ):
-    """Create Razorpay order for payment"""
+    """
+    Create Razorpay order for payment
+    
+    Request body: { "amount": <number in rupees>, "currency": "INR" }
+    Response: { "order_id": "...", "amount": <paise>, "currency": "INR", "key_id": "...", "payment_id": "..." }
+    """
     try:
         logger.info(
             f"[cyan]💳[/cyan] Creating payment order for user: {current_user['email']}, "
             f"amount: {payment_data.amount} {payment_data.currency}"
         )
+        
+        # Validate amount
+        if payment_data.amount <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Amount must be greater than 0"
+            )
+        
+        # Validate currency
+        if payment_data.currency.upper() != "INR":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Only INR currency is supported"
+            )
         
         # Create Razorpay order with retry logic
         order = await PaymentService.create_order(payment_data.amount, payment_data.currency)
@@ -41,13 +60,17 @@ async def create_payment_order(
             f"order_id={order['id']}, payment_id={payment['id']}"
         )
         
+        # Return exact format as specified in requirements
         return {
             "order_id": order["id"],
-            "amount": order["amount"],
+            "amount": order["amount"],  # Already in paise from Razorpay
             "currency": order["currency"],
             "key_id": settings.razorpay_key_id,
             "payment_id": payment["id"]
         }
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except ValueError as e:
         logger.error(f"[bold red]✗[/bold red] Invalid payment request: [red]{str(e)}[/red]")
         raise HTTPException(
@@ -73,17 +96,41 @@ async def verify_payment(
     verify_data: PaymentVerify,
     current_user: dict = Depends(get_current_user)
 ):
-    """Verify Razorpay payment and activate subscription"""
+    """
+    Verify Razorpay payment and activate subscription
+    
+    Request body: {
+        "razorpay_order_id": "...",
+        "razorpay_payment_id": "...",
+        "razorpay_signature": "..."
+    }
+    
+    After successful verification:
+    - Updates payment status to "completed"
+    - Activates subscription (1 month) for the current user
+    """
+    logger.info(
+        f"[cyan]🔐[/cyan] Verifying payment for user: {current_user['email']}, "
+        f"order_id: {verify_data.razorpay_order_id}"
+    )
+    
     # Get payment record
     payment = await PaymentService.get_payment_by_order_id(verify_data.razorpay_order_id)
     if not payment:
+        logger.warning(
+            f"[yellow]⚠[/yellow] Payment record not found for order_id: {verify_data.razorpay_order_id}"
+        )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Payment record not found"
         )
     
     # Verify payment belongs to current user
-    if payment.get("user_id") != current_user["id"]:
+    if str(payment.get("user_id")) != current_user["id"]:
+        logger.warning(
+            f"[yellow]⚠[/yellow] Payment ownership mismatch: "
+            f"payment.user_id={payment.get('user_id')}, current_user.id={current_user['id']}"
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Payment does not belong to current user"
@@ -97,12 +144,15 @@ async def verify_payment(
     )
     
     if not is_valid:
+        logger.error(
+            f"[bold red]✗[/bold red] Invalid payment signature for order_id: {verify_data.razorpay_order_id}"
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid payment signature"
         )
     
-    # Update payment status
+    # Update payment status to completed
     payment = await PaymentService.update_payment_status(
         verify_data.razorpay_order_id,
         verify_data.razorpay_payment_id,
@@ -110,8 +160,13 @@ async def verify_payment(
         "completed"
     )
     
-    # Activate subscription (1 month for now)
-    await SubscriptionService.renew_subscription(current_user["id"], 1)
+    # Activate subscription (1 month)
+    logger.info(f"[cyan]📅[/cyan] Activating subscription for user: {current_user['email']}")
+    subscription = await SubscriptionService.renew_subscription(current_user["id"], 1)
+    logger.info(
+        f"[bold green]✓[/bold green] Payment verified and subscription activated: "
+        f"subscription_id={subscription.get('id')}, end_date={subscription.get('end_date')}"
+    )
     
     return payment
 

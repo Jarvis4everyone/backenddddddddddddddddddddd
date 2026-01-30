@@ -31,7 +31,14 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins_list(self) -> List[str]:
-        """Get CORS origins list, handling wildcard case"""
+        """
+        Get CORS origins list, handling wildcard case
+        
+        Requirements:
+        - No trailing slashes
+        - Exact origin matching (required for credentials)
+        - Must include frontend production and development URLs
+        """
         # When using credentials, we can't use wildcard "*"
         # Convert "*" to common development origins
         if self.cors_origins.strip() == "*":
@@ -50,14 +57,18 @@ class Settings(BaseSettings):
         for origin in self.cors_origins.split(","):
             origin = origin.strip()
             if origin:
-                # Remove trailing slashes
+                # Remove trailing slashes (required by frontend team)
                 origin = origin.rstrip("/")
                 origins.append(origin)
         
-        # Always include frontend URL if not already present
-        frontend_url = "https://jarvis4everyone.com"
-        if frontend_url not in origins:
-            origins.append(frontend_url)
+        # Always include production frontend URLs if not already present
+        production_urls = [
+            "https://jarvis4everyone.com",
+            "https://frontend-4tbx.onrender.com"
+        ]
+        for url in production_urls:
+            if url not in origins:
+                origins.append(url)
         
         return origins
 
