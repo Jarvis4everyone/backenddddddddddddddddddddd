@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     # Application Configuration
     app_name: str = "Jarvis4Everyone Backend"
     debug: bool = False
-    cors_origins: str = "http://localhost:3000,http://localhost:5173"
+    cors_origins: str = "http://localhost:3000,http://localhost:5173,https://jarvis4everyone.com,https://frontend-4tbx.onrender.com"
     
     # Download Configuration
     download_file_path: str = "./.downloads/jarvis4everyone.zip"
@@ -41,7 +41,8 @@ class Settings(BaseSettings):
                 "http://localhost:8080",
                 "http://127.0.0.1:3000",
                 "http://127.0.0.1:5173",
-                "https://frontend-4tbx.onrender.com"
+                "https://frontend-4tbx.onrender.com",
+                "https://jarvis4everyone.com"
             ]
         
         # Parse comma-separated origins and normalize them
@@ -54,7 +55,7 @@ class Settings(BaseSettings):
                 origins.append(origin)
         
         # Always include frontend URL if not already present
-        frontend_url = "https://frontend-4tbx.onrender.com"
+        frontend_url = "https://jarvis4everyone.com"
         if frontend_url not in origins:
             origins.append(frontend_url)
         
@@ -63,7 +64,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = False
-
 
 settings = Settings()
 
